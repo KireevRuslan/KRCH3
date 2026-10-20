@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Проверка QR-кода</title>
+</head>
+<body>
+<h1>Проверка QR-кода</h1>
+<form action="/check-qr" method="post">
+  <label for="uuid">Укажите ваш UUID:</label>
+
+  <input
+  type="text"
+  id = "uuid"
+  name="uuid"
+  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  required
+  >
+  <button type="submit">Проверить</button>
+</form>
+
+
+<p th:if ="${message}" th:text = "${message}"></p>
+</body>
+</html>
