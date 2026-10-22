@@ -1,8 +1,9 @@
+
 package com.example.entryWithQrCode.dto;
 
 import java.util.UUID;
 
-public record ParticipantScanResult(
+public record CheckQrResponse(
         String fullName,
         UUID newUuid
 ) {
