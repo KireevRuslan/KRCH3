@@ -18,7 +18,6 @@ public class ParticipantRepository {
     }
 
     public Optional<ParticipantScanResult> consumeQr(UUID uuid) {
-
         String sql = """
                 UPDATE participants
                 SET uuid = gen_random_uuid()
@@ -36,5 +35,31 @@ public class ParticipantRepository {
         );
 
         return results.stream().findFirst();
+    }
+
+    public ParticipantScanResult addParticipant(String fullName) {
+        String sql = """
+            INSERT INTO participants (full_name)
+            VALUES (?)
+            RETURNING full_name, uuid
+            """;
+
+        return jdbcTemplate.queryForObject(
+                sql,
+                (rs, rowNum) -> new ParticipantScanResult(
+                        rs.getString("full_name"),
+                        rs.getObject("uuid", UUID.class)
+                ),
+                fullName
+        );
+    }
+
+    public int deleteByFullName(String fullName) {
+        String sql = """
+                DELETE FROM participants
+                WHERE full_name = ?
+                """;
+
+        return jdbcTemplate.update(sql, fullName);
     }
 }

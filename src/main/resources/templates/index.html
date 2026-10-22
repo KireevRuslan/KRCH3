@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -22,13 +21,13 @@
 
     <button type="submit">Проверить</button>
 </form>
+<div th:if="${fullName != null}">
+    <h2>Участник найден</h2>
+    <p>ФИО: <span th:text="${fullName}"></span></p>
+    <p>Новый UUID: <span th:text="${newUuid}"></span></p>
+</div>
 
-<p th:if="${message}" th:text="${message}"></p>
-
-<p th:if="${newUuid}">
-    Новый UUID:
-    <span th:text="${newUuid}"></span>
-</p>
+<p th:if="${message != null}" th:text="${message}"></p>
 
 </body>
 </html>

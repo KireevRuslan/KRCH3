@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление участниками</title>
+</head>
+<body>
+
+<h1>Управление участниками</h1>
+
+<h2>Добавить участника</h2>
+
+<form action="/participants/add" method="post">
+    <label for="newFullName">ФИО участника:</label>
+    <input
+            type="text"
+            id="newFullName"
+            name="fullName"
+            placeholder="Иван Иванов"
+            required
+    >
+    <button type="submit">Добавить</button>
+</form>
+
+<hr>
+
+<h2>Удалить участника</h2>
+
+<form action="/participants/delete" method="post">
+    <label for="deleteFullName">ФИО участника:</label>
+    <input
+            type="text"
+            id="deleteFullName"
+            name="fullName"
+            placeholder="Иван Иванов"
+            required
+    >
+    <button type="submit">Удалить</button>
+</form>
+
+<hr>
+
+<p th:if="${message != null}" th:text="${message}"></p>
+<p>
+    UUID:
+    <code th:text="${newUuid}"></code>
+</p>
+<a href="/">Вернуться к проверке QR-кода</a>
+
+</body>
+</html>
+```

@@ -29,21 +29,20 @@ public class QrController {
     }
 
     @PostMapping("/check-qr")
-    public ResponseEntity<?> checrQr(
-            @RequestParam("uuid") String uuid
+    public String checrQr(
+            @RequestParam("uuid") String uuid,
+            Model model
 
     ) {
-        try {
-            Optional<ParticipantScanResult> result = qrService.checkQr(uuid);
-            if (result.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of(
-                                "message", "Участник не найден или QR-код уже использован"
-                        ));
-            }
-            return ResponseEntity.ok(result.get());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("massage", e.getMessage()));
+        Optional<ParticipantScanResult> result = qrService.checkQr(uuid);
+        if (result.isEmpty()) {
+            model.addAttribute("message", "Участник не найден");
+            return "index";
         }
+        ParticipantScanResult participant = result.get();
+        model.addAttribute("fullName", participant.fullName());
+        model.addAttribute("newUuid", participant.newUuid());
+        return "index";
     }
+
 }
