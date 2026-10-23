@@ -42,16 +42,13 @@ public class QrService {
         QrCode oldQr = foundQr.get();
         Participant participant = oldQr.getParticipant();
 
-        // Помечаем старый QR-код использованным
         oldQr.setUsedAt(Instant.now());
 
-        // Создаём новый QR-код для того же участника
         QrCode newQr = new QrCode(UUID.randomUUID());
         participant.addQrCode(newQr);
 
         qrCodeRepository.save(newQr);
 
-        // Возвращаем DTO с ФИО и новым UUID
         CheckQrResponse response = new CheckQrResponse(
                 participant.getFullName(),
                 newQr.getUuid()
