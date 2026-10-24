@@ -2,6 +2,7 @@
 package com.example.entryWithQrCode.service;
 
 import com.example.entryWithQrCode.dto.CheckQrResponse;
+import com.example.entryWithQrCode.dto.QrCodeResponse;
 import com.example.entryWithQrCode.entity.Participant;
 import com.example.entryWithQrCode.entity.QrCode;
 import com.example.entryWithQrCode.exception.ParticipantNotFoundException;
@@ -9,7 +10,6 @@ import com.example.entryWithQrCode.exception.QrCodeAlreadyUsedException;
 import com.example.entryWithQrCode.exception.QrCodeNotFoundException;
 import com.example.entryWithQrCode.repository.ParticipantRepository;
 import com.example.entryWithQrCode.repository.QrCodeRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -178,5 +178,59 @@ class QrServiceTest {
         );
 
         verify(qrCodeRepository, never()).save(any(QrCode.class));
+    }
+
+    @Test
+    void createQrCode_whenParticipantExists_createsQrCode() {
+        Long participantId = 1L;
+        Participant participant = mock(Participant.class);
+
+        when(participantRepository.findById(participantId))
+                .thenReturn(Optional.of(participant));
+
+        when(participant.getId()).thenReturn(participantId);
+
+        when(qrCodeRepository.save(any(QrCode.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        QrCodeResponse result = qrService.createQrCode(participantId);
+
+        assertNotNull(result);
+        assertEquals(participantId, result.participantId());
+        assertNotNull(result.uuid());
+        assertNotNull(result.createdAt());
+
+        verify(participantRepository).findById(participantId);
+        verify(participant).addQrCode(any(QrCode.class));
+        verify(qrCodeRepository).save(any(QrCode.class));
+    }
+    @Test
+    void updateQrCode_whenQrUnused_updatesUuid() {
+        Long qrId = 1L;
+        Long participantId = 2L;
+        UUID oldUuid = UUID.randomUUID();
+
+        Participant participant = mock(Participant.class);
+        when(participant.getId()).thenReturn(participantId);
+
+        QrCode qrCode = new QrCode(oldUuid);
+        qrCode.setParticipant(participant);
+
+        when(qrCodeRepository.findById(qrId))
+                .thenReturn(Optional.of(qrCode));
+
+        when(qrCodeRepository.save(any(QrCode.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        QrCodeResponse result = qrService.updateQrCode(qrId);
+
+        assertNotNull(result);
+        assertEquals(participantId, result.participantId());
+        assertNotEquals(oldUuid, result.uuid());
+        assertEquals(result.uuid(), qrCode.getUuid());
+        assertNull(result.usedAt());
+
+        verify(qrCodeRepository).findById(qrId);
+        verify(qrCodeRepository).save(qrCode);
     }
 }
