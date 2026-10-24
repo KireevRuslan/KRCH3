@@ -151,4 +151,36 @@ class QrRestControllerTest {
         mockMvc.perform(delete("/api/qr/10"))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void checkQr_whenQrIsInvalid_returnsForbiddenWithMessage() throws Exception {
+        UUID uuid = UUID.randomUUID();
+
+        when(qrService.checkQr(uuid)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/qr/check")
+                        .param("uuid", uuid.toString()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message")
+                        .value("QR-код недействителен или уже использован"));
+    }
+
+    @Test
+    void checkQr_whenUuidIsMissing_returnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/qr/check"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("Отсутствует обязательный параметр: uuid"));
+    }
+
+    @Test
+    void createQrCode_whenParticipantNotFound_returnsNotFoundWithMessage()
+            throws Exception {
+        when(qrService.createQrCode(1L))
+                .thenThrow(new ParticipantNotFoundException(1L));
+
+        mockMvc.perform(post("/api/qr/participant/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message")
+                        .value("Участник с ID 1 не найден"));
+    }
 }

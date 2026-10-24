@@ -105,4 +105,34 @@ class ParticipantRestControllerTest {
 
         verify(participantService).delete(1L);
     }
+    @Test
+    void findAll_whenNoParticipants_returnsEmptyList() throws Exception {
+        when(participantService.findAll()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/participants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void update_whenParticipantNotFound_returnsNotFound() throws Exception {
+        when(participantService.update(
+                eq(1L),
+                any(CreateParticipantRequest.class)
+        )).thenThrow(new ParticipantNotFoundException(1L));
+
+        mockMvc.perform(put("/api/participants/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fullName\":\"Petr Petrov\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void delete_whenParticipantNotFound_returnsNotFound() throws Exception {
+        doThrow(new ParticipantNotFoundException(1L))
+                .when(participantService).delete(1L);
+
+        mockMvc.perform(delete("/api/participants/1"))
+                .andExpect(status().isNotFound());
+    }
 }

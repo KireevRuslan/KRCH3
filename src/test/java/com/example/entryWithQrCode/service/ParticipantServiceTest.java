@@ -49,6 +49,7 @@ class ParticipantServiceTest {
 
         List<ParticipantResponse> result = participantService.findAll();
 
+        assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
