@@ -1,7 +1,6 @@
 package com.example.entryWithQrCode.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,7 +21,7 @@ public class QrCode {
     private UUID uuid;
 
     @Column(name = "created_at", nullable = false)
-    private Instant createAt;
+    private Instant createdAt;
 
     @Column(name = "used_at")
     private Instant usedAt;
@@ -33,7 +32,7 @@ public class QrCode {
 
     public QrCode(UUID uuid){
         this.uuid = uuid;
-        this.createAt = Instant.now();
+        this.createdAt = Instant.now();
     }
 
     public Long getId(){
@@ -57,7 +56,7 @@ public class QrCode {
     }
 
     public Instant getCreatedAt(){
-        return createAt;
+        return createdAt;
     }
 
     public Instant getUsedAt(){

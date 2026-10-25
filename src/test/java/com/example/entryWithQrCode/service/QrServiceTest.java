@@ -205,7 +205,7 @@ class QrServiceTest {
         verify(qrCodeRepository).save(any(QrCode.class));
     }
     @Test
-    void updateQrCode_whenQrUnused_updatesUuid() {
+    void updateQrCode_whenQrUnused_createsNewQrAndPreservesOldQr() {
         Long qrId = 1L;
         Long participantId = 2L;
         UUID oldUuid = UUID.randomUUID();
@@ -213,24 +213,30 @@ class QrServiceTest {
         Participant participant = mock(Participant.class);
         when(participant.getId()).thenReturn(participantId);
 
-        QrCode qrCode = new QrCode(oldUuid);
-        qrCode.setParticipant(participant);
+        QrCode oldQr = new QrCode(oldUuid);
+        oldQr.setParticipant(participant);
 
         when(qrCodeRepository.findById(qrId))
-                .thenReturn(Optional.of(qrCode));
+                .thenReturn(Optional.of(oldQr));
 
         when(qrCodeRepository.save(any(QrCode.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         QrCodeResponse result = qrService.updateQrCode(qrId);
 
+        assertEquals(oldUuid, oldQr.getUuid());
+        assertNotNull(oldQr.getUsedAt());
+
         assertNotNull(result);
         assertEquals(participantId, result.participantId());
+        assertNotNull(result.uuid());
         assertNotEquals(oldUuid, result.uuid());
-        assertEquals(result.uuid(), qrCode.getUuid());
         assertNull(result.usedAt());
 
         verify(qrCodeRepository).findById(qrId);
-        verify(qrCodeRepository).save(qrCode);
+        verify(qrCodeRepository).saveAndFlush(oldQr);
+        verify(qrCodeRepository).save(any(QrCode.class));
+        verify(participant).addQrCode(any(QrCode.class));
     }
+
 }

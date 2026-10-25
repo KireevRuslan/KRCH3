@@ -27,4 +27,5 @@ public interface QrCodeRepository extends JpaRepository<QrCode, Long> {
     );
 
     List<QrCode> findAllByParticipantId(Long participantId);
+    Optional<QrCode> findByParticipant_IdAndUsedAtIsNull(Long participantId);
 }

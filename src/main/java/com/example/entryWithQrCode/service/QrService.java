@@ -79,10 +79,16 @@ public class QrService {
         Participant participant = participantRepository.findById(participantId)
                 .orElseThrow(() -> new ParticipantNotFoundException(participantId));
 
-        QrCode qrCode = new QrCode(UUID.randomUUID());
-        participant.addQrCode(qrCode);
+        qrCodeRepository.findByParticipant_IdAndUsedAtIsNull(participantId)
+                .ifPresent(activeQr -> {
+                    activeQr.setUsedAt(Instant.now());
+                    qrCodeRepository.saveAndFlush(activeQr);
+                });
 
-        QrCode saved = qrCodeRepository.save(qrCode);
+        QrCode newQr = new QrCode(UUID.randomUUID());
+        participant.addQrCode(newQr);
+
+        QrCode saved = qrCodeRepository.save(newQr);
 
         return new QrCodeResponse(
                 saved.getId(),
@@ -103,20 +109,26 @@ public class QrService {
 
     @Transactional
     public QrCodeResponse updateQrCode(Long id) {
-        QrCode qrCode = qrCodeRepository.findById(id)
+        QrCode oldQr = qrCodeRepository.findById(id)
                 .orElseThrow(() -> new QrCodeNotFoundException(id));
 
-        if (qrCode.getUsedAt() != null) {
+        if (oldQr.getUsedAt() != null) {
             throw new QrCodeAlreadyUsedException(id);
         }
 
-        qrCode.setUuid(UUID.randomUUID());
+        Participant participant = oldQr.getParticipant();
 
-        QrCode saved = qrCodeRepository.save(qrCode);
+        oldQr.setUsedAt(Instant.now());
+        qrCodeRepository.saveAndFlush(oldQr);
+
+        QrCode newQr = new QrCode(UUID.randomUUID());
+        participant.addQrCode(newQr);
+
+        QrCode saved = qrCodeRepository.save(newQr);
 
         return new QrCodeResponse(
                 saved.getId(),
-                saved.getParticipant().getId(),
+                participant.getId(),
                 saved.getUuid(),
                 saved.getCreatedAt(),
                 saved.getUsedAt()

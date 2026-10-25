@@ -135,4 +135,20 @@ class ParticipantRestControllerTest {
         mockMvc.perform(delete("/api/participants/1"))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void create_whenFullNameIsBlank_returnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/participants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fullName\":\"   \"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(participantService);
+    }
+    @Test
+    void findById_whenIdIsNotNumeric_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/participants/abc"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(participantService);
+    }
 }

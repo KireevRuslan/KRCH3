@@ -1,7 +1,5 @@
 package com.example.entryWithQrCode.dto;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-
 import java.time.Instant;
 import java.util.UUID;
 

@@ -42,4 +42,17 @@ class ParticipantTest {
         assertSame(qrCode, participant.getQrCodes().get(0));
         assertSame(participant, qrCode.getParticipant());
     }
+    @Test
+    void addQrCode_addsMultipleQrCodes() {
+        Participant participant = new Participant("Иван Иванов");
+        QrCode firstQr = new QrCode();
+        QrCode secondQr = new QrCode();
+
+        participant.addQrCode(firstQr);
+        participant.addQrCode(secondQr);
+
+        assertEquals(2, participant.getQrCodes().size());
+        assertSame(firstQr, participant.getQrCodes().get(0));
+        assertSame(secondQr, participant.getQrCodes().get(1));
+    }
 }

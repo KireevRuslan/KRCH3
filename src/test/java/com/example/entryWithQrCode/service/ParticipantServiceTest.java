@@ -8,6 +8,7 @@ import com.example.entryWithQrCode.exception.ParticipantNotFoundException;
 import com.example.entryWithQrCode.repository.ParticipantRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -82,16 +83,21 @@ class ParticipantServiceTest {
                 new CreateParticipantRequest("Ivan Ivanov");
 
         when(participantRepository.save(any(Participant.class)))
-                .thenAnswer(invocation -> {
-                    Participant participant = invocation.getArgument(0);
-                    return participant;
-                });
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         ParticipantResponse result = participantService.create(request);
 
         assertEquals("Ivan Ivanov", result.fullName());
 
-        verify(participantRepository).save(any(Participant.class));
+        ArgumentCaptor<Participant> captor =
+                ArgumentCaptor.forClass(Participant.class);
+
+        verify(participantRepository).save(captor.capture());
+
+        Participant savedParticipant = captor.getValue();
+
+        assertEquals(1, savedParticipant.getQrCodes().size());
+        assertNotNull(savedParticipant.getQrCodes().get(0).getUuid());
     }
 
     @Test

@@ -11,7 +11,7 @@ import java.util.List;
 public class Participant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;

@@ -183,4 +183,18 @@ class QrRestControllerTest {
                 .andExpect(jsonPath("$.message")
                         .value("Участник с ID 1 не найден"));
     }
+    @Test
+    void checkQr_whenUuidIsInvalidFormat_returnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/qr/check")
+                        .param("uuid", "not-a-uuid"))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void deleteQrCode_whenQrCodeAlreadyUsed_returnsConflict() throws Exception {
+        doThrow(new QrCodeAlreadyUsedException(10L))
+                .when(qrService).deleteQrCode(10L);
+
+        mockMvc.perform(delete("/api/qr/10"))
+                .andExpect(status().isConflict());
+    }
 }

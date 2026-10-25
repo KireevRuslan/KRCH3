@@ -52,4 +52,5 @@ class QrCodeTest {
 
         assertEquals(usedAt, qrCode.getUsedAt());
     }
+
 }
