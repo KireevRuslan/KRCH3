@@ -1,7 +1,6 @@
 package com.example.entryWithQrCode.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.time.Instant;
 import java.util.UUID;
