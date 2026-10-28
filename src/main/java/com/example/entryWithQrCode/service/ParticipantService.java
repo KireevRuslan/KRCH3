@@ -11,13 +11,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class ParticipantService {
 
     private final ParticipantRepository participantRepository;
+
+    private ParticipantResponse toResponse(Participant participant) {
+        return new ParticipantResponse(
+                participant.getId(),
+                participant.getFullName()
+        );
+    }
 
     public ParticipantService(
             ParticipantRepository participantRepository
@@ -29,10 +35,7 @@ public class ParticipantService {
     public List<ParticipantResponse> findAll() {
         return participantRepository.findAll()
                 .stream()
-                .map(participant -> new ParticipantResponse(
-                        participant.getId(),
-                        participant.getFullName()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -41,10 +44,7 @@ public class ParticipantService {
         Participant participant = participantRepository.findById(id)
                 .orElseThrow(() -> new ParticipantNotFoundException(id));
 
-        return new ParticipantResponse(
-                participant.getId(),
-                participant.getFullName()
-        );
+        return toResponse(participant);
     }
 
     @Transactional
@@ -56,10 +56,7 @@ public class ParticipantService {
 
         Participant saved = participantRepository.save(participant);
 
-        return new ParticipantResponse(
-                saved.getId(),
-                saved.getFullName()
-        );
+        return toResponse(saved);
     }
 
     @Transactional
@@ -67,30 +64,23 @@ public class ParticipantService {
             Long id,
             CreateParticipantRequest request
     ) {
-        Participant participant = participantRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new ParticipantNotFoundException(id)
-                );
+        Participant participant = participantRepository.findById(id)
+                .orElseThrow(() -> new ParticipantNotFoundException(id));
 
         participant.setFullName(request.fullName());
 
         Participant saved = participantRepository.save(participant);
 
-        return new ParticipantResponse(
-                saved.getId(),
-                saved.getFullName()
-        );
+        return toResponse(saved);
     }
 
     @Transactional
     public void delete(Long id) {
-        Participant participant = participantRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new ParticipantNotFoundException(id)
-                );
+        Participant participant = participantRepository.findById(id)
+                .orElseThrow(() -> new ParticipantNotFoundException(id));
 
         participantRepository.delete(participant);
     }
+
+
 }

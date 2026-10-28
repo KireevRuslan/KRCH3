@@ -23,6 +23,17 @@ public class QrService {
     private final QrCodeRepository qrCodeRepository;
     private final ParticipantRepository participantRepository;
 
+
+    private QrCodeResponse toResponse(QrCode qrCode) {
+        return new QrCodeResponse(
+                qrCode.getId(),
+                qrCode.getParticipant().getId(),
+                qrCode.getUuid(),
+                qrCode.getCreatedAt(),
+                qrCode.getUsedAt()
+        );
+    }
+
     public QrService(QrCodeRepository qrCodeRepository,
                      ParticipantRepository participantRepository) {
         this.qrCodeRepository = qrCodeRepository;
@@ -61,13 +72,7 @@ public class QrService {
     public List<QrCodeResponse> findByParticipantId(Long participantId) {
         return qrCodeRepository.findAllByParticipantId(participantId)
                 .stream()
-                .map(qrCode -> new QrCodeResponse(
-                        qrCode.getId(),
-                        qrCode.getParticipant().getId(),
-                        qrCode.getUuid(),
-                        qrCode.getCreatedAt(),
-                        qrCode.getUsedAt()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -81,13 +86,7 @@ public class QrService {
 
         QrCode saved = qrCodeRepository.save(qrCode);
 
-        return new QrCodeResponse(
-                saved.getId(),
-                participant.getId(),
-                saved.getUuid(),
-                saved.getCreatedAt(),
-                saved.getUsedAt()
-        );
+        return toResponse(saved);
     }
 
     @Transactional
@@ -111,13 +110,8 @@ public class QrService {
 
         QrCode saved = qrCodeRepository.save(qrCode);
 
-        return new QrCodeResponse(
-                saved.getId(),
-                saved.getParticipant().getId(),
-                saved.getUuid(),
-                saved.getCreatedAt(),
-                saved.getUsedAt()
-        );
+        return toResponse(saved);
     }
+
 
 }

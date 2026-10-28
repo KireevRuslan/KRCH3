@@ -180,6 +180,7 @@ class QrServiceTest {
         verify(qrCodeRepository, never()).save(any(QrCode.class));
     }
 
+
     @Test
     void createQrCode_whenParticipantExists_createsQrCode() {
         Long participantId = 1L;
@@ -189,6 +190,12 @@ class QrServiceTest {
                 .thenReturn(Optional.of(participant));
 
         when(participant.getId()).thenReturn(participantId);
+
+        doAnswer(invocation -> {
+            QrCode qrCode = invocation.getArgument(0);
+            qrCode.setParticipant(participant);
+            return null;
+        }).when(participant).addQrCode(any(QrCode.class));
 
         when(qrCodeRepository.save(any(QrCode.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -204,6 +211,7 @@ class QrServiceTest {
         verify(participant).addQrCode(any(QrCode.class));
         verify(qrCodeRepository).save(any(QrCode.class));
     }
+
 
     @Test
     void updateQrCode_whenQrUnused_changesUuid() {
