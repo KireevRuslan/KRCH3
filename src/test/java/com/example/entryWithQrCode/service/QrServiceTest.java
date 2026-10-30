@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -184,18 +185,12 @@ class QrServiceTest {
     @Test
     void createQrCode_whenParticipantExists_createsQrCode() {
         Long participantId = 1L;
-        Participant participant = mock(Participant.class);
+        Participant participant = new Participant("Иван Иванов");
+
+        ReflectionTestUtils.setField(participant, "id", participantId);
 
         when(participantRepository.findById(participantId))
                 .thenReturn(Optional.of(participant));
-
-        when(participant.getId()).thenReturn(participantId);
-
-        doAnswer(invocation -> {
-            QrCode qrCode = invocation.getArgument(0);
-            qrCode.setParticipant(participant);
-            return null;
-        }).when(participant).addQrCode(any(QrCode.class));
 
         when(qrCodeRepository.save(any(QrCode.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -208,8 +203,10 @@ class QrServiceTest {
         assertNotNull(result.createdAt());
 
         verify(participantRepository).findById(participantId);
-        verify(participant).addQrCode(any(QrCode.class));
         verify(qrCodeRepository).save(any(QrCode.class));
+
+        assertEquals(1, participant.getQrCodes().size());
+        assertSame(participant, participant.getQrCodes().get(0).getParticipant());
     }
 
 

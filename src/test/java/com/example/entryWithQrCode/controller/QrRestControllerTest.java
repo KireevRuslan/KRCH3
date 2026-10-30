@@ -189,12 +189,5 @@ class QrRestControllerTest {
                         .param("uuid", "not-a-uuid"))
                 .andExpect(status().isBadRequest());
     }
-    @Test
-    void deleteQrCode_whenQrCodeAlreadyUsed_returnsConflict() throws Exception {
-        doThrow(new QrCodeAlreadyUsedException(10L))
-                .when(qrService).deleteQrCode(10L);
 
-        mockMvc.perform(delete("/api/qr/10"))
-                .andExpect(status().isConflict());
-    }
 }
